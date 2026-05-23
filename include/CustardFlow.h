@@ -1,9 +1,6 @@
 #ifndef CUSTARD_FLOW_H
 #define CUSTARD_FLOW_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,7 +28,7 @@ void loss_backward(const float *logits, const long *targets, float *grad_logits,
 void layer_normalization_forward(const float *input, float *output, size_t batch_size, size_t num_features,
 float * gamma, float * beta);
 void layer_normalization_backward(const float *inputs, const float *grad_outputs, float *grad_inputs, size_t size_batch, size_t num_features,
-float * gammas, float * grad_gammas, float * grad_betas);
+const float * gammas, float * grad_gammas, float * grad_betas);
 void relu_forward(float *activations, size_t num_features, size_t size_batch);
 void relu_backward(const float *input, float *gradients, const long *labels, size_t num_features, size_t size_batch);
 void softmax_forward(float *activations, size_t num_classes, size_t size_batch);
@@ -42,8 +39,6 @@ void attention_forward_mask(const float *input, const float *weights_query, cons
     const float *weights_output, float *output, float * db_matrix, size_t size_batch, size_t size_sequence, size_t dim_model, size_t num_heads);
 
 
-#ifdef __cplusplus
-}
-#endif
+
 
 #endif // CUSTARD_FLOW_H

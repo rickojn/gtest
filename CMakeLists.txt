@@ -29,7 +29,7 @@ FetchContent_MakeAvailable(googletest)
 
 # Build the CustardFlow library
 add_library(custard-flow
-    src/CustardFlow.c
+    src/CustardFlow.cpp
 )
 target_include_directories(custard-flow PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
@@ -48,11 +48,11 @@ target_link_libraries(
 
 
 add_executable(
-  main
-  src/Main.c
+  bench
+  src/matmul_bench.cpp
 )
 target_link_libraries(
-  main
+  bench
   custard-flow
   ${TORCH_LIBRARIES}
   m

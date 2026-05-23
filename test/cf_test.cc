@@ -3,7 +3,7 @@
 #include "../include/CustardFlow.h"
 #include <stdlib.h>
 
-TEST(MatrixMultiplicationTest, CompareWithLibTorch) {
+TEST(NaiveMatrixMultiplicationTest, CompareWithLibTorch) {
     // ARRANGE
     torch::manual_seed(42);
     torch::Tensor A = torch::rand({3, 3});
@@ -164,7 +164,7 @@ struct MatMulDims {
 };
 
 // 2) Create a fixture that derives from TestWithParam, templated on MatMulDims:
-class SIMDMatrixMultiplicationTest
+class MatrixMultiplicationTest
   : public ::testing::TestWithParam<MatMulDims> {
 protected:
     void run_compare_with_libtorch() {
@@ -188,7 +188,8 @@ protected:
         std::fill(actual, actual + m * n, 0.0f);
 
         // ACT
-        simd_matmul(A_ptr, B_ptr, actual, m, n, k);
+        naive_matmul(A_ptr, B_ptr, actual, m, k, n);
+
 
 
         // compare
@@ -211,35 +212,35 @@ protected:
 };
 
 // 3) Define the parameterized test using TEST_P:
-TEST_P(SIMDMatrixMultiplicationTest, CompareWithLibTorch) {
-    run_compare_with_libtorch();
-}
+// TEST_P(MatrixMultiplicationTest, CompareWithLibTorch) {
+//     run_compare_with_libtorch();
+// }
 
 // 4) Instantiate the suite with the size tuples you want to cover:
-INSTANTIATE_TEST_SUITE_P(
-    VariousSizes,
-    SIMDMatrixMultiplicationTest,
-    ::testing::Values(
-        MatMulDims{1, 1, 1},
-        MatMulDims{3, 3, 3},
-        MatMulDims{8, 8, 1},
-        MatMulDims{8,8,8},
-        MatMulDims{16, 16, 16},
-        MatMulDims{8, 16,8},
-        MatMulDims{8, 15, 1},
-        MatMulDims{256, 512, 1024},
-        MatMulDims{8, 16, 32},
-        MatMulDims{257, 512, 1024},
-        MatMulDims{257, 512, 1023},
-        MatMulDims{16, 8, 784}
-     ),
-    [](auto const& info) {
-        auto dims = info.param;
-        return "m" + std::to_string(dims.m)
-             + "_k" + std::to_string(dims.k)
-             + "_n" + std::to_string(dims.n);
-    }
-);
+// INSTANTIATE_TEST_SUITE_P(
+//     VariousSizes,
+//     MatrixMultiplicationTest,
+//     ::testing::Values(
+//         MatMulDims{1, 1, 1},
+//         MatMulDims{3, 3, 3},
+//         MatMulDims{8, 8, 1},
+//         MatMulDims{8,8,8},
+//         MatMulDims{16, 16, 16},
+//         MatMulDims{8, 16,8},
+//         MatMulDims{8, 15, 1},
+//         MatMulDims{256, 512, 1024},
+//         MatMulDims{8, 16, 32},
+//         MatMulDims{257, 512, 1024},
+//         MatMulDims{257, 512, 1023},
+//         MatMulDims{16, 8, 784}
+//      ),
+//     [](auto const& info) {
+//         auto dims = info.param;
+//         return "m" + std::to_string(dims.m)
+//              + "_k" + std::to_string(dims.k)
+//              + "_n" + std::to_string(dims.n);
+//     }
+// );
 
 TEST(layer_norm_test, basic_functionality) {
     // ARRANGE

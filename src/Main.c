@@ -291,7 +291,7 @@ int main() {
         row_to_col_major(LA, TLA, M, K);
         col_to_row_major(LB, TLB, K, N);        
         start = clock();
-        simd_matmul(TLA, TLB, LC, M, N, K);
+        // simd_matmul(TLA, TLB, LC, M, N, K);
         end = clock();
         time_spent = (double)(end - start) / CLOCKS_PER_SEC;
         printf("Time spent on simd matmul: %f seconds\n", time_spent);

@@ -33,15 +33,12 @@ void transpose_matrix(const float *src_matrix, float *dest_matrix, size_t src_nu
 }
 
 
-void naive_matmul(const float* A, const float *B, float * C, size_t m, size_t n, size_t k){
-    // transpose B to col-major
-    float* B_transposed = (float*)malloc(k * n * sizeof(float));
-    transpose_matrix(B, B_transposed, k, n);
-    for (size_t idx_m = 0; idx_m < m; idx_m++ ){
-        for (size_t idx_n = 0; idx_n < n; idx_n++){
-            for (size_t idx_k = 0; idx_k < k; idx_k++){            
-                // C[idx_m][idx_n] = A[idx_m][idx_k] * B[idx_k][idx_n]
-                C[idx_m * n + idx_n] += A[idx_m * k + idx_k] * B_transposed[idx_k + idx_n * k];
+void naive_matmul(const float* A, const float *B, float * C, size_t M, size_t N, size_t K){
+    for (size_t i = 0; i < M; i++ ){
+        for (size_t j = 0; j < N; j++){
+            for (size_t k = 0; k < K; k++){            
+                // C[i][j] += A[i][k] * B[k][j]
+                C[i * N + j] += A[i * K + k] * B[k * N + j];
             }
         }
     }

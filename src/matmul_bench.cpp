@@ -43,6 +43,8 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
+#include "../include/CustardFlow.h"
+
 // ─────────────────────────────────────────────────────────────────────────────
 // perf_event_open wrapper + counter group
 // ─────────────────────────────────────────────────────────────────────────────
@@ -225,69 +227,69 @@ using MatmulFn = std::function<void(const float*, const float*, float*,
                                     size_t, size_t, size_t)>;
 
 // 1. Naive ijk ----------------------------------------------------------------
-void naive_matmul(const float* A, const float* B, float* C,
-                  size_t M, size_t N, size_t K) {
-    for (size_t i = 0; i < M; i++)
-        for (size_t j = 0; j < N; j++)
-            for (size_t k = 0; k < K; k++)
-                C[i*N+j] += A[i*K+k] * B[k*N+j];
-}
+// void naive_matmul(const float* A, const float* B, float* C,
+//                   size_t M, size_t N, size_t K) {
+//     for (size_t i = 0; i < M; i++)
+//         for (size_t j = 0; j < N; j++)
+//             for (size_t k = 0; k < K; k++)
+//                 C[i*N+j] += A[i*K+k] * B[k*N+j];
+// }
 
-// 2. Loop-order ikj (A[i][k] hoisted; B and C both stride sequentially) ------
-void ikj_matmul(const float* A, const float* B, float* C,
-                size_t M, size_t N, size_t K) {
-    for (size_t i = 0; i < M; i++)
-        for (size_t k = 0; k < K; k++) {
-            float a = A[i*K+k];
-            for (size_t j = 0; j < N; j++)
-                C[i*N+j] += a * B[k*N+j];
-        }
-}
+// // 2. Loop-order ikj (A[i][k] hoisted; B and C both stride sequentially) ------
+// void ikj_matmul(const float* A, const float* B, float* C,
+//                 size_t M, size_t N, size_t K) {
+//     for (size_t i = 0; i < M; i++)
+//         for (size_t k = 0; k < K; k++) {
+//             float a = A[i*K+k];
+//             for (size_t j = 0; j < N; j++)
+//                 C[i*N+j] += a * B[k*N+j];
+//         }
+// }
 
-// 3. Register-tile width=4 (4 C accumulators in registers per inner loop) ----
-void tiled_reg_matmul(const float* A, const float* B, float* C,
-                      size_t M, size_t N, size_t K) {
-    constexpr size_t W = 4;
-    for (size_t i = 0; i < M; i++) {
-        size_t j = 0;
-        for (; j + W <= N; j += W) {
-            float c0=0, c1=0, c2=0, c3=0;
-            for (size_t k = 0; k < K; k++) {
-                float a = A[i*K+k];
-                c0 += a * B[k*N+j+0];
-                c1 += a * B[k*N+j+1];
-                c2 += a * B[k*N+j+2];
-                c3 += a * B[k*N+j+3];
-            }
-            C[i*N+j+0] += c0; C[i*N+j+1] += c1;
-            C[i*N+j+2] += c2; C[i*N+j+3] += c3;
-        }
-        for (; j < N; j++) {
-            float c = 0;
-            for (size_t k = 0; k < K; k++) c += A[i*K+k] * B[k*N+j];
-            C[i*N+j] += c;
-        }
-    }
-}
+// // 3. Register-tile width=4 (4 C accumulators in registers per inner loop) ----
+// void tiled_reg_matmul(const float* A, const float* B, float* C,
+//                       size_t M, size_t N, size_t K) {
+//     constexpr size_t W = 4;
+//     for (size_t i = 0; i < M; i++) {
+//         size_t j = 0;
+//         for (; j + W <= N; j += W) {
+//             float c0=0, c1=0, c2=0, c3=0;
+//             for (size_t k = 0; k < K; k++) {
+//                 float a = A[i*K+k];
+//                 c0 += a * B[k*N+j+0];
+//                 c1 += a * B[k*N+j+1];
+//                 c2 += a * B[k*N+j+2];
+//                 c3 += a * B[k*N+j+3];
+//             }
+//             C[i*N+j+0] += c0; C[i*N+j+1] += c1;
+//             C[i*N+j+2] += c2; C[i*N+j+3] += c3;
+//         }
+//         for (; j < N; j++) {
+//             float c = 0;
+//             for (size_t k = 0; k < K; k++) c += A[i*K+k] * B[k*N+j];
+//             C[i*N+j] += c;
+//         }
+//     }
+// }
 
-// 4. Cache-blocked 64³ (tiles sized to stay in L2) ----------------------------
-void blocked_matmul(const float* A, const float* B, float* C,
-                    size_t M, size_t N, size_t K) {
-    constexpr size_t BR = 64, BC = 64, BK = 64;
-    for (size_t i0 = 0; i0 < M; i0 += BR)
-    for (size_t k0 = 0; k0 < K; k0 += BK)
-    for (size_t j0 = 0; j0 < N; j0 += BC) {
-        size_t iE = std::min(i0+BR, M);
-        size_t kE = std::min(k0+BK, K);
-        size_t jE = std::min(j0+BC, N);
-        for (size_t i = i0; i < iE; i++)
-        for (size_t k = k0; k < kE; k++) {
-            float a = A[i*K+k];
-            for (size_t j = j0; j < jE; j++)
-                C[i*N+j] += a * B[k*N+j];
-        }
-    }
-}
+// // 4. Cache-blocked 64³ (tiles sized to stay in L2) ----------------------------
+// void blocked_matmul(const float* A, const float* B, float* C,
+//                     size_t M, size_t N, size_t K) {
+//     constexpr size_t BR = 64, BC = 64, BK = 64;
+//     for (size_t i0 = 0; i0 < M; i0 += BR)
+//     for (size_t k0 = 0; k0 < K; k0 += BK)
+//     for (size_t j0 = 0; j0 < N; j0 += BC) {
+//         size_t iE = std::min(i0+BR, M);
+//         size_t kE = std::min(k0+BK, K);
+//         size_t jE = std::min(j0+BC, N);
+//         for (size_t i = i0; i < iE; i++)
+//         for (size_t k = k0; k < kE; k++) {
+//             float a = A[i*K+k];
+//             for (size_t j = j0; j < jE; j++)
+//                 C[i*N+j] += a * B[k*N+j];
+//         }
+//     }
+// }
 
 // ── Add your next variant here ────────────────────────────────────────────────
 // void my_matmul(const float* A, const float* B, float* C,
@@ -418,9 +420,6 @@ int main(int argc, char* argv[]) {
     struct Entry { std::string name; MatmulFn fn; };
     std::vector<Entry> impls = {
         { "naive (ijk)",          naive_matmul     },
-        { "loop-order ikj",       ikj_matmul       },
-        { "reg-tile w=4",         tiled_reg_matmul },
-        { "cache-blocked 64³",    blocked_matmul   },
         // { "my_avx_matmul",     my_avx_matmul    },
     };
 

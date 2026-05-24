@@ -69,4 +69,5 @@ core.*
 Thumbs.db
 /build/
 /build-debug/
+/release/
 *.gpg

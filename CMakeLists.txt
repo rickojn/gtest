@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.14)
 project(custard-flow)
 
+# Set default build type to Release if not specified
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+
 # GoogleTest requires at least C++17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -47,17 +52,9 @@ target_link_libraries(
 )
 
 
-add_executable(
-  bench
-  src/matmul_bench.cpp
-)
-target_link_libraries(
-  bench
-  custard-flow
-  ${TORCH_LIBRARIES}
-  m
-)
-
+add_executable(bench src/matmul_bench.cpp)
+target_compile_options(bench PRIVATE -O3 -march=native)  # O3 for the benchmark
+target_link_libraries(bench custard-flow  m)
 
 # Enable intrinsics (SSE/AVX) if needed
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")

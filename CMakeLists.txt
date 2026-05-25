@@ -52,9 +52,9 @@ target_link_libraries(
 )
 
 
-add_executable(bench src/matmul_bench.cpp)
-target_compile_options(bench PRIVATE -O3 -march=native)  # O3 for the benchmark
-target_link_libraries(bench custard-flow  m)
+add_executable(main src/Main.cpp)
+target_compile_options(main PRIVATE -O3 -march=native)  # O3 for the benchmark
+target_link_libraries(main custard-flow)
 
 # Enable intrinsics (SSE/AVX) if needed
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")

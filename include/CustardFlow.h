@@ -14,6 +14,7 @@
 int min(int a, int b);
 
 void naive_matmul(const float *A, const float *B, float *C, size_t m, size_t n, size_t k);
+void ikj_matmul(const float *A, const float *B, float *C, size_t m, size_t n, size_t k);
 void outer_product_matmul(const float *A, const float *B, float *C, size_t rows, size_t cols, size_t inner_dim);
 void tiled_matmul(const float *A, const float *B, float *C, size_t rows, size_t cols, size_t inner_dim, size_t tile_size);
 void l1_tiled_matmul(const float *A, const float *B, float *C, size_t rows, size_t cols, size_t inner_dim, size_t tile_size, size_t inner_tile_size);

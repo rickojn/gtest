@@ -3,13 +3,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <cstdint>
+#include <cstdlib>
+#include <string>
 
 
 
-int main(int argc, char **argv) {
+int main(int argc, char *argv[]) {
     int M = 1024;  // Matrix size
     int N = 1024;  // Matrix size
     int K = 1024;  // Matrix size
+
+    if (argc >= 4) { M = std::stoul(argv[1]); N = std::stoul(argv[2]); K = std::stoul(argv[3]); }
     int warmup = 5;
     int iterations = 10;
     
@@ -53,8 +58,6 @@ int main(int argc, char **argv) {
         double time = (double)(end - start) / CLOCKS_PER_SEC / iterations;
         printf("Time: %.4f ms\n", time * 1000);
         
-        // Optional: verify results match
-        // verify(C, reference);
     }
     
     delete[] A; delete[] B; delete[] C;

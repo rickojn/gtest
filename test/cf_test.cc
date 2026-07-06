@@ -49,9 +49,9 @@ void mat_mul_backwards_test(
     torch::Tensor input   = torch::rand({k, m}, torch::requires_grad());
     torch::Tensor weights = torch::rand({m, n}, torch::requires_grad());
 
-    torch::Tensor output = torch::mm(input, weights);   // (k x n)
-    torch::Tensor grad_output = torch::rand_like(output);
-    output.backward(grad_output);
+    torch::Tensor probs = torch::mm(input, weights);   // (k x n)
+    torch::Tensor grad_output = torch::rand_like(probs);
+    probs.backward(grad_output);
 
     float *expected_input_grad   = input.grad().data_ptr<float>();    // k x m
     float *expected_weights_grad = weights.grad().data_ptr<float>();  // m x n
@@ -64,7 +64,7 @@ void mat_mul_backwards_test(
     std::fill(actual_input_grad, actual_input_grad + k * m, 0.0f);
     std::fill(actual_weights_grad, actual_weights_grad + m * n, 0.0f);
 
-    // M=batch, N=output dim, K=input dim
+    // M=batch, N=probs dim, K=input dim
     matmul_backwards_func(
         grad_output_ptr, weights_ptr, input_ptr,
         actual_weights_grad, actual_input_grad,
@@ -254,11 +254,11 @@ TEST(layer_norm_test, basic_functionality) {
     // torch layer norm
     auto layer_norm = torch::nn::LayerNorm(torch::nn::LayerNormOptions({num_features}).elementwise_affine(true));
 
-    auto output = layer_norm->forward(input);
+    auto probs = layer_norm->forward(input);
 
     // ACT
     float *input_ptr = input.data_ptr<float>();
-    float *output_ptr = output.data_ptr<float>();
+    float *output_ptr = probs.data_ptr<float>();
     float *gamma_ptr = layer_norm->weight.data_ptr<float>();
     float *beta_ptr = layer_norm->bias.data_ptr<float>();
     float *expected_output = new float[batch_size * num_features];
@@ -284,9 +284,9 @@ TEST(layer_norm_backward_test, basic_functionality) {
     torch::Tensor gamma = torch::randn({num_features}, torch::requires_grad());
     torch::Tensor beta = torch::randn({num_features}, torch::requires_grad());
     auto layer_norm = torch::nn::LayerNorm(torch::nn::LayerNormOptions({num_features}).elementwise_affine(true));
-    auto output = layer_norm->forward(input);
-    torch::Tensor grad_output = torch::randn_like(output);
-    output.backward(grad_output);
+    auto probs = layer_norm->forward(input);
+    torch::Tensor grad_output = torch::randn_like(probs);
+    probs.backward(grad_output);
     float *input_ptr = input.data_ptr<float>();
     float *gamma_ptr = layer_norm->weight.data_ptr<float>();
     float *beta_ptr = layer_norm->bias.data_ptr<float>();
@@ -327,9 +327,9 @@ TEST(ReLUForwardTest, BasicFunctionality) {
     int num_features = 5;
     torch::Tensor input = torch::randn({batch_size, num_features}, torch::requires_grad());
     auto relu = torch::nn::ReLU();
-    auto output = relu->forward(input);
+    auto probs = relu->forward(input);
     float *input_ptr = input.data_ptr<float>();
-    float *output_ptr = output.data_ptr<float>();
+    float *output_ptr = probs.data_ptr<float>();
     float *actual_output = new float[batch_size * num_features];
     //copy input to actual_output
     std::copy(input_ptr, input_ptr + batch_size * num_features, actual_output);
@@ -353,9 +353,9 @@ TEST(ReLUBackwardTest, BasicFunctionality) {
     int num_features = 5;
     torch::Tensor input = torch::randn({batch_size, num_features}, torch::requires_grad());
     auto relu = torch::nn::ReLU();
-    auto output = relu->forward(input);
-    torch::Tensor grad_output = torch::randn_like(output);
-    output.backward(grad_output);
+    auto probs = relu->forward(input);
+    torch::Tensor grad_output = torch::randn_like(probs);
+    probs.backward(grad_output);
     float *input_ptr = input.data_ptr<float>();
     float *grad_output_ptr = grad_output.data_ptr<float>();
     float *expected_input_grad = input.grad().data_ptr<float>();
@@ -382,9 +382,9 @@ TEST(SoftmaxForwardTest, BasicFunctionality) {
     int num_classes = 5;    
     torch::Tensor logits = torch::randn({batch_size, num_classes}, torch::requires_grad());
     auto softmax = torch::nn::Softmax(/*dim=*/1);
-    auto output = softmax->forward(logits);
+    auto probs = softmax->forward(logits);
     float *logits_ptr = logits.data_ptr<float>();
-    float *output_ptr = output.data_ptr<float>();
+    float *output_ptr = probs.data_ptr<float>();
     float *actual_output = new float[batch_size * num_classes];
     // copy logits to actual_output
     std::copy(logits_ptr, logits_ptr + batch_size * num_classes, actual_output);
@@ -542,7 +542,7 @@ TEST(AttentionForwardNoCacheTest, DISABLED_BasicFunctionality) {
     delete[] actual_output;
 }
 
-// using the cf attention_foward as a reference for expected output, test the attention_forward_mask implementation.
+// using the cf attention_foward as a reference for expected probs, test the attention_forward_mask implementation.
 
 /*
 
@@ -578,7 +578,7 @@ TEST(AttentionForwardMaskTest, BasicFunctionality) {
     float *weights_value_ptr = weights_value.data_ptr<float>();
     float *weights_output_ptr = weights_output.data_ptr<float>();
 
-    // allocate memory for actual and expected output tensors, and compute expected output using attention_forward as reference
+    // allocate memory for actual and expected probs tensors, and compute expected probs using attention_forward as reference
     float *actual_output_ptr = new float[batch_size * size_sequence * dim_model];
     float *expected_output_ptr = new float[batch_size * size_sequence * dim_model];
 
@@ -662,31 +662,43 @@ TEST(SoftmaxBackwardsTest, BasicFunctionality) {
     int batch_size = 4;
     int num_classes = 5;
 
-    torch::Tensor logits = torch::randn({batch_size, num_classes}, torch::requires_grad());
-    auto softmax = torch::nn::Softmax(/*dim=*/1);
-    auto output = softmax->forward(logits);
-    torch::Tensor grad_output = torch::randn_like(output);
-    output.backward(grad_output);
+    torch::Tensor logits = torch::randn(
+        {batch_size, num_classes},
+        torch::TensorOptions().dtype(torch::kFloat32).requires_grad(true)
+    );
 
-    float *logits_ptr = logits.data_ptr<float>();
+    auto softmax = torch::nn::Softmax(/*dim=*/1);
+    torch::Tensor probs = softmax->forward(logits);
+
+    torch::Tensor grad_output = torch::randn_like(probs);
+
+    probs.backward(grad_output);
+
+    float *probs_ptr = probs.data_ptr<float>();
     float *grad_output_ptr = grad_output.data_ptr<float>();
     float *expected_input_grad = logits.grad().data_ptr<float>();
 
-    float *actual_input_grad = new float[batch_size * num_classes];
-    std::fill(actual_input_grad, actual_input_grad + batch_size * num_classes, 0.0f);
+    std::vector<float> actual_input_grad(batch_size * num_classes, 0.0f);
 
     // ACT
-    softmax_backward(logits_ptr, grad_output_ptr, actual_input_grad, batch_size, num_classes);
+    softmax_backward(
+        probs_ptr,
+        grad_output_ptr,
+        actual_input_grad.data(),
+        batch_size,
+        num_classes
+    );
 
     // ASSERT
     for (int i = 0; i < batch_size; ++i) {
         for (int j = 0; j < num_classes; ++j) {
-            EXPECT_NEAR(actual_input_grad[i * num_classes + j], expected_input_grad[i * num_classes + j], 1e-3)
-                << "Mismatch in input gradient at (" << i << ", " << j << ")";
+            EXPECT_NEAR(
+                actual_input_grad[i * num_classes + j],
+                expected_input_grad[i * num_classes + j],
+                1e-3
+            ) << "Mismatch in input gradient at (" << i << ", " << j << ")";
         }
     }
-
-    delete[] actual_input_grad;
 }
 
     

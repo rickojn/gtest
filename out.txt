@@ -1,7 +1,56 @@
-Running main() from /home/rickojn/coding/custard-flow/build-debug/_deps/googletest-src/googletest/src/gtest_main.cc
-Note: Google Test filter = AttentionForwardMaskTest.BasicFunctionality
-[==========] Running 1 test from 1 test suite.
+Running main() from /home/patrick/coding/custard-flow/build/_deps/googletest-src/googletest/src/gtest_main.cc
+[==========] Running 12 tests from 12 test suites.
 [----------] Global test environment set-up.
+[----------] 1 test from NaiveMatrixMultiplicationTest
+[ RUN      ] NaiveMatrixMultiplicationTest.CompareWithLibTorch
+[       OK ] NaiveMatrixMultiplicationTest.CompareWithLibTorch (2 ms)
+[----------] 1 test from NaiveMatrixMultiplicationTest (2 ms total)
+
+[----------] 1 test from MatrixMultiplicationBackwardsTest
+[ RUN      ] MatrixMultiplicationBackwardsTest.SimdMatmulBackwards
+[       OK ] MatrixMultiplicationBackwardsTest.SimdMatmulBackwards (5 ms)
+[----------] 1 test from MatrixMultiplicationBackwardsTest (6 ms total)
+
+[----------] 1 test from CrossEntropyLossTest
+[ RUN      ] CrossEntropyLossTest.BasicFunctionality
+[       OK ] CrossEntropyLossTest.BasicFunctionality (0 ms)
+[----------] 1 test from CrossEntropyLossTest (0 ms total)
+
+[----------] 1 test from LossBackwardTest
+[ RUN      ] LossBackwardTest.BasicFunctionality
+[       OK ] LossBackwardTest.BasicFunctionality (0 ms)
+[----------] 1 test from LossBackwardTest (0 ms total)
+
+[----------] 1 test from layer_norm_test
+[ RUN      ] layer_norm_test.basic_functionality
+[       OK ] layer_norm_test.basic_functionality (0 ms)
+[----------] 1 test from layer_norm_test (0 ms total)
+
+[----------] 1 test from layer_norm_backward_test
+[ RUN      ] layer_norm_backward_test.basic_functionality
+[       OK ] layer_norm_backward_test.basic_functionality (0 ms)
+[----------] 1 test from layer_norm_backward_test (0 ms total)
+
+[----------] 1 test from ReLUForwardTest
+[ RUN      ] ReLUForwardTest.BasicFunctionality
+[       OK ] ReLUForwardTest.BasicFunctionality (0 ms)
+[----------] 1 test from ReLUForwardTest (0 ms total)
+
+[----------] 1 test from ReLUBackwardTest
+[ RUN      ] ReLUBackwardTest.BasicFunctionality
+[       OK ] ReLUBackwardTest.BasicFunctionality (0 ms)
+[----------] 1 test from ReLUBackwardTest (0 ms total)
+
+[----------] 1 test from SoftmaxForwardTest
+[ RUN      ] SoftmaxForwardTest.BasicFunctionality
+[       OK ] SoftmaxForwardTest.BasicFunctionality (0 ms)
+[----------] 1 test from SoftmaxForwardTest (0 ms total)
+
+[----------] 1 test from SoftmaxCrossEntropyBackwardTest
+[ RUN      ] SoftmaxCrossEntropyBackwardTest.MatchesPyTorch
+[       OK ] SoftmaxCrossEntropyBackwardTest.MatchesPyTorch (0 ms)
+[----------] 1 test from SoftmaxCrossEntropyBackwardTest (0 ms total)
+
 [----------] 1 test from AttentionForwardMaskTest
 [ RUN      ] AttentionForwardMaskTest.BasicFunctionality
 Batch size: 16
@@ -13,9 +62,134 @@ Max absolute difference: 0
 Max relative difference: 0
 Mean absolute difference: 0
 Mean relative difference: 0
-[       OK ] AttentionForwardMaskTest.BasicFunctionality (259 ms)
-[----------] 1 test from AttentionForwardMaskTest (259 ms total)
+[       OK ] AttentionForwardMaskTest.BasicFunctionality (1 ms)
+[----------] 1 test from AttentionForwardMaskTest (1 ms total)
+
+[----------] 1 test from SoftmaxBackwardsTest
+[ RUN      ] SoftmaxBackwardsTest.BasicFunctionality
+/home/patrick/coding/custard-flow/test/cf_test.cc:695: Failure
+The difference between actual_input_grad[i * num_classes + j] and expected_input_grad[i * num_classes + j] is 0.013091310858726501, which exceeds 1e-3, where
+actual_input_grad[i * num_classes + j] evaluates to 0.12030847370624542,
+expected_input_grad[i * num_classes + j] evaluates to 0.13339978456497192, and
+1e-3 evaluates to 0.001.
+Mismatch in input gradient at (0, 0)
+/home/patrick/coding/custard-flow/test/cf_test.cc:695: Failure
+The difference between actual_input_grad[i * num_classes + j] and expected_input_grad[i * num_classes + j] is 0.0084343701601028442, which exceeds 1e-3, where
+actual_input_grad[i * num_classes + j] evaluates to -0.15180712938308716,
+expected_input_grad[i * num_classes + j] evaluates to -0.14337275922298431, and
+1e-3 evaluates to 0.001.
+Mismatch in input gradient at (0, 1)
+/home/patrick/coding/custard-flow/test/cf_test.cc:695: Failure
+The difference between actual_input_grad[i * num_classes + j] and expected_input_grad[i * num_classes + j] is 0.004691489040851593, which exceeds 1e-3, where
+actual_input_grad[i * num_classes + j] evaluates to 0.040856637060642242,
+expected_input_grad[i * num_classes + j] evaluates to 0.045548126101493835, and
+1e-3 evaluates to 0.001.
+Mismatch in input gradient at (0, 2)
+/home/patrick/coding/custard-flow/test/cf_test.cc:695: Failure
+The difference between actual_input_grad[i * num_classes + j] and expected_input_grad[i * num_classes + j] is 0.0035161636769771576, which exceeds 1e-3, where
+actual_input_grad[i * num_classes + j] evaluates to -0.032173603773117065,
+expected_input_grad[i * num_classes + j] evaluates to -0.028657440096139908, and
+1e-3 evaluates to 0.001.
+Mismatch in input gradient at (0, 4)
+/home/patrick/coding/custard-flow/test/cf_test.cc:695: Failure
+The difference between actual_input_grad[i * num_classes + j] and expected_input_grad[i * num_classes + j] is 0.018032968044281006, which exceeds 1e-3, where
+actual_input_grad[i * num_classes + j] evaluates to -0.25238659977912903,
+expected_input_grad[i * num_classes + j] evaluates to -0.27041956782341003, and
+1e-3 evaluates to 0.001.
+Mismatch in input gradient at (1, 0)
+/home/patrick/coding/custard-flow/test/cf_test.cc:695: Failure
+The difference between actual_input_grad[i * num_classes + j] and expected_input_grad[i * num_classes + j] is 0.013662904500961304, which exceeds 1e-3, where
+actual_input_grad[i * num_classes + j] evaluates to 0.29718846082687378,
+expected_input_grad[i * num_classes + j] evaluates to 0.28352555632591248, and
+1e-3 evaluates to 0.001.
+Mismatch in input gradient at (1, 1)
+/home/patrick/coding/custard-flow/test/cf_test.cc:695: Failure
+The difference between actual_input_grad[i * num_classes + j] and expected_input_grad[i * num_classes + j] is 0.03293393412604928, which exceeds 1e-3, where
+actual_input_grad[i * num_classes + j] evaluates to 0.0054478091187775135,
+expected_input_grad[i * num_classes + j] evaluates to -0.027486125007271767, and
+1e-3 evaluates to 0.001.
+Mismatch in input gradient at (1, 2)
+/home/patrick/coding/custard-flow/test/cf_test.cc:695: Failure
+The difference between actual_input_grad[i * num_classes + j] and expected_input_grad[i * num_classes + j] is 0.012986000627279282, which exceeds 1e-3, where
+actual_input_grad[i * num_classes + j] evaluates to 0.02934330515563488,
+expected_input_grad[i * num_classes + j] evaluates to 0.016357304528355598, and
+1e-3 evaluates to 0.001.
+Mismatch in input gradient at (1, 3)
+/home/patrick/coding/custard-flow/test/cf_test.cc:695: Failure
+The difference between actual_input_grad[i * num_classes + j] and expected_input_grad[i * num_classes + j] is 0.0045785815455019474, which exceeds 1e-3, where
+actual_input_grad[i * num_classes + j] evaluates to 0.0026013897731900215,
+expected_input_grad[i * num_classes + j] evaluates to -0.0019771917723119259, and
+1e-3 evaluates to 0.001.
+Mismatch in input gradient at (1, 4)
+/home/patrick/coding/custard-flow/test/cf_test.cc:695: Failure
+The difference between actual_input_grad[i * num_classes + j] and expected_input_grad[i * num_classes + j] is 0.038442522287368774, which exceeds 1e-3, where
+actual_input_grad[i * num_classes + j] evaluates to 0.17299430072307587,
+expected_input_grad[i * num_classes + j] evaluates to 0.21143682301044464, and
+1e-3 evaluates to 0.001.
+Mismatch in input gradient at (2, 0)
+/home/patrick/coding/custard-flow/test/cf_test.cc:695: Failure
+The difference between actual_input_grad[i * num_classes + j] and expected_input_grad[i * num_classes + j] is 0.08015865832567215, which exceeds 1e-3, where
+actual_input_grad[i * num_classes + j] evaluates to -0.15763558447360992,
+expected_input_grad[i * num_classes + j] evaluates to -0.077476926147937775, and
+1e-3 evaluates to 0.001.
+Mismatch in input gradient at (2, 1)
+/home/patrick/coding/custard-flow/test/cf_test.cc:695: Failure
+The difference between actual_input_grad[i * num_classes + j] and expected_input_grad[i * num_classes + j] is 0.023228034377098083, which exceeds 1e-3, where
+actual_input_grad[i * num_classes + j] evaluates to -0.20495413243770599,
+expected_input_grad[i * num_classes + j] evaluates to -0.18172609806060791, and
+1e-3 evaluates to 0.001.
+Mismatch in input gradient at (2, 2)
+/home/patrick/coding/custard-flow/test/cf_test.cc:695: Failure
+The difference between actual_input_grad[i * num_classes + j] and expected_input_grad[i * num_classes + j] is 0.030531004071235657, which exceeds 1e-3, where
+actual_input_grad[i * num_classes + j] evaluates to 0.17348909378051758,
+expected_input_grad[i * num_classes + j] evaluates to 0.20402009785175323, and
+1e-3 evaluates to 0.001.
+Mismatch in input gradient at (2, 3)
+/home/patrick/coding/custard-flow/test/cf_test.cc:695: Failure
+The difference between actual_input_grad[i * num_classes + j] and expected_input_grad[i * num_classes + j] is 0.022769197821617126, which exceeds 1e-3, where
+actual_input_grad[i * num_classes + j] evaluates to -0.17902308702468872,
+expected_input_grad[i * num_classes + j] evaluates to -0.15625388920307159, and
+1e-3 evaluates to 0.001.
+Mismatch in input gradient at (2, 4)
+/home/patrick/coding/custard-flow/test/cf_test.cc:695: Failure
+The difference between actual_input_grad[i * num_classes + j] and expected_input_grad[i * num_classes + j] is 0.074302703142166138, which exceeds 1e-3, where
+actual_input_grad[i * num_classes + j] evaluates to 0.20815707743167877,
+expected_input_grad[i * num_classes + j] evaluates to 0.13385437428951263, and
+1e-3 evaluates to 0.001.
+Mismatch in input gradient at (3, 0)
+/home/patrick/coding/custard-flow/test/cf_test.cc:695: Failure
+The difference between actual_input_grad[i * num_classes + j] and expected_input_grad[i * num_classes + j] is 0.021710075438022614, which exceeds 1e-3, where
+actual_input_grad[i * num_classes + j] evaluates to 0.13503439724445343,
+expected_input_grad[i * num_classes + j] evaluates to 0.11332432180643082, and
+1e-3 evaluates to 0.001.
+Mismatch in input gradient at (3, 1)
+/home/patrick/coding/custard-flow/test/cf_test.cc:695: Failure
+The difference between actual_input_grad[i * num_classes + j] and expected_input_grad[i * num_classes + j] is 0.019921369850635529, which exceeds 1e-3, where
+actual_input_grad[i * num_classes + j] evaluates to 0.060685198754072189,
+expected_input_grad[i * num_classes + j] evaluates to 0.040763828903436661, and
+1e-3 evaluates to 0.001.
+Mismatch in input gradient at (3, 2)
+/home/patrick/coding/custard-flow/test/cf_test.cc:695: Failure
+The difference between actual_input_grad[i * num_classes + j] and expected_input_grad[i * num_classes + j] is 0.066083058714866638, which exceeds 1e-3, where
+actual_input_grad[i * num_classes + j] evaluates to -0.14491313695907593,
+expected_input_grad[i * num_classes + j] evaluates to -0.21099619567394257, and
+1e-3 evaluates to 0.001.
+Mismatch in input gradient at (3, 3)
+/home/patrick/coding/custard-flow/test/cf_test.cc:695: Failure
+The difference between actual_input_grad[i * num_classes + j] and expected_input_grad[i * num_classes + j] is 0.015893470495939255, which exceeds 1e-3, where
+actual_input_grad[i * num_classes + j] evaluates to -0.061052862554788589,
+expected_input_grad[i * num_classes + j] evaluates to -0.076946333050727844, and
+1e-3 evaluates to 0.001.
+Mismatch in input gradient at (3, 4)
+[  FAILED  ] SoftmaxBackwardsTest.BasicFunctionality (0 ms)
+[----------] 1 test from SoftmaxBackwardsTest (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 1 test from 1 test suite ran. (259 ms total)
-[  PASSED  ] 1 test.
+[==========] 12 tests from 12 test suites ran. (12 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SoftmaxBackwardsTest.BasicFunctionality
+
+ 1 FAILED TEST
+  YOU HAVE 1 DISABLED TEST
+

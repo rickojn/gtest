@@ -364,6 +364,20 @@ void softmax_forward(float *activations, size_t num_classes, size_t size_batch)
     }
 }
 
+void softmax_backward(const float *probs, const float *gradients_output, float *gradients_input, size_t num_classes, size_t size_batch)
+{
+    for (size_t idx_sample = 0; idx_sample < size_batch; idx_sample++){
+        // calculate the dot product of the gradient and the probabilities for the sample
+        float dot_product = 0.0f;
+        for (size_t idx_class = 0; idx_class < num_classes; idx_class++){
+            dot_product += gradients_output[idx_sample * num_classes + idx_class] * probs[idx_sample * num_classes + idx_class];
+        }
+        for (size_t idx_class = 0; idx_class < num_classes; idx_class++){
+            gradients_input[idx_sample * num_classes + idx_class] = probs[idx_sample * num_classes + idx_class] * (gradients_output[idx_sample * num_classes + idx_class] - dot_product);
+        }
+    }    
+}
+
 void loss_softmax_backward(const float *probs, float *gradients_output, const long *labels, size_t num_neurons, size_t size_batch)
 {
     for (size_t idx_sample = 0; idx_sample < size_batch; idx_sample++){

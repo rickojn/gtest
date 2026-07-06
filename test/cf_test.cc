@@ -656,4 +656,37 @@ TEST(AttentionForwardMaskTest, BasicFunctionality) {
     delete[] expected_output_ptr;
 }
 
+TEST(SoftmaxBackwardsTest, BasicFunctionality) {
+    // ARRANGE
+    torch::manual_seed(42);
+    int batch_size = 4;
+    int num_classes = 5;
+
+    torch::Tensor logits = torch::randn({batch_size, num_classes}, torch::requires_grad());
+    auto softmax = torch::nn::Softmax(/*dim=*/1);
+    auto output = softmax->forward(logits);
+    torch::Tensor grad_output = torch::randn_like(output);
+    output.backward(grad_output);
+
+    float *logits_ptr = logits.data_ptr<float>();
+    float *grad_output_ptr = grad_output.data_ptr<float>();
+    float *expected_input_grad = logits.grad().data_ptr<float>();
+
+    float *actual_input_grad = new float[batch_size * num_classes];
+    std::fill(actual_input_grad, actual_input_grad + batch_size * num_classes, 0.0f);
+
+    // ACT
+    softmax_backward(logits_ptr, grad_output_ptr, actual_input_grad, batch_size, num_classes);
+
+    // ASSERT
+    for (int i = 0; i < batch_size; ++i) {
+        for (int j = 0; j < num_classes; ++j) {
+            EXPECT_NEAR(actual_input_grad[i * num_classes + j], expected_input_grad[i * num_classes + j], 1e-3)
+                << "Mismatch in input gradient at (" << i << ", " << j << ")";
+        }
+    }
+
+    delete[] actual_input_grad;
+}
+
     

@@ -685,8 +685,8 @@ TEST(SoftmaxBackwardsTest, BasicFunctionality) {
         probs_ptr,
         grad_output_ptr,
         actual_input_grad.data(),
-        batch_size,
-        num_classes
+        num_classes,
+        batch_size
     );
 
     // ASSERT
@@ -695,7 +695,7 @@ TEST(SoftmaxBackwardsTest, BasicFunctionality) {
             EXPECT_NEAR(
                 actual_input_grad[i * num_classes + j],
                 expected_input_grad[i * num_classes + j],
-                1e-3
+                1e-4
             ) << "Mismatch in input gradient at (" << i << ", " << j << ")";
         }
     }
